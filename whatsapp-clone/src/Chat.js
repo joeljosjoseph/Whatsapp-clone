@@ -1,5 +1,5 @@
-import React from "react";
-import { Form } from "react-bootstrap";
+import React, { useState } from "react";
+import axios from "./axios";
 import { PersonCircle, Search } from "react-bootstrap-icons";
 import { ThreeDotsVertical } from "react-bootstrap-icons";
 import { Paperclip } from "react-bootstrap-icons";
@@ -7,7 +7,20 @@ import { EmojiLaughing } from "react-bootstrap-icons";
 import { MicFill } from "react-bootstrap-icons";
 import "./chat.css";
 
-function Chat() {
+function Chat({ messages }) {
+  const [input, setInput] = useState("");
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+
+    await axios.post("/messages/new", {
+      message: input,
+      name: "Joel",
+      received: false,
+    });
+    setInput("");
+  };
+
   return (
     <div className="chat">
       <div className="chat-header">
@@ -29,22 +42,22 @@ function Chat() {
         </div>
       </div>
       <div className="chat-body">
-        <p className="chat-message">
-          <span className="chat-name">Joel</span>
-          The message itself
-          <span className="chat-timeStamp">{new Date().toUTCString()}</span>
-        </p>
-        <p className="chat-message chat-sent">
-          <span className="chat-name">Joel</span>
-          The message itself
-          <span className="chat-timeStamp">{new Date().toUTCString()}</span>
-        </p>
+        {messages.map((message, index) => (
+          <p
+            className={`chat-message ${!message.received && "chat-sent"}`}
+            key={index}
+          >
+            <span className="chat-name">{message.name}</span>
+            {message.message}
+            <span className="chat-timeStamp">{message.timestamp}</span>
+          </p>
+        ))}
       </div>
       <div className="chat-footer">
         <EmojiLaughing size={20} color="#5e5e5e" />
         <form>
-          <input></input>
-          <button type="submit">Send</button>
+          <input value={input} onChange={(e) => setInput(e.target.value)} />
+          <button type="submit" onClick={(e) => sendMessage(e)}></button>
         </form>
         <MicFill size={20} color="#5e5e5e" />
       </div>
